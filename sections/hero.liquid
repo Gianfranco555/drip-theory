@@ -185,6 +185,17 @@
   css\nfont-family: var(--font-heading-family);\n
 }
 
+  .hero__shop-button {
+    margin-top: 1rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .hero__shop-button {
+      display: block;
+      text-align: center;
+    }
+  }
+
 {% endstylesheet %}
 
 {% liquid
@@ -356,7 +367,7 @@
     {% if section.settings.section_height == 'custom' %}
       --hero-min-height: {{ section.settings.section_height_custom }}svh;
     {% elsif section.settings.section_height == "full-screen" %}
-       --hero-min-height: 100svh;
+       --hero-min-height: 60svh;
     {% else %}
       --hero-min-height: var(--section-height-{{ section.settings.section_height }});
     {% endif %}
@@ -423,6 +434,7 @@
       style="{% render 'layout-panel-style', settings: section.settings %}"
     >
       {% content_for 'blocks' %}
+      <a href="#product-grid" class="button button--primary hero__shop-button">Shop Now</a>
     </div>
   </div>
 </div>
