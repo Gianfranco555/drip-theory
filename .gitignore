@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Shopify
+config/settings_data.json
+
+# Node (if you ever install dependencies)
+node_modules/
