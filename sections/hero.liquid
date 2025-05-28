@@ -935,3 +935,16 @@
   ]
 }
 {% endschema %}
+<script>
+  /* Skip-to-grid on small screens */
+  if (window.innerWidth < 768) {
+    document
+      .querySelector('.button--primary')
+      ?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document
+          .getElementById('resource-list-grid')
+          ?.scrollIntoView({ behavior: 'smooth' });
+      });
+  }
+</script>
