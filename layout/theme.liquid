@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <link rel="preconnect" href="https://cdn.shopify.com">
+  <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+  {{ 'base.css' | asset_url | stylesheet_tag }}
+
+  {%- if settings.favicon != blank -%}
+ 
+  <link rel="icon"
+        href="{{ settings.favicon | image_url: width: 192, height: 192 }}"
+        sizes="192x192"
+        type="image/png">
+
+  
+  <link rel="icon"
+        href="{{ settings.favicon | image_url: width: 48, height: 48 }}"
+        sizes="48x48"
+        type="image/png">
+
+  
+  <link rel="icon"
+        href="{{ settings.favicon | image_url }}"
+        sizes="any"
+        type="image/png">
+{%- endif -%}
+
+
+  <link rel="expect" href="#MainContent" blocking="render" id="view-transition-render-blocker">
+
+  {%- render 'meta-tags' -%}
+  {%- render 'fonts' -%}
+  {%- render 'scripts' -%}
+  {%- render 'theme-styles-variables' -%}
+  {%- render 'color-schemes' -%}
+
+  {% if request.design_mode %}
+    {%- render 'theme-editor' -%}
+  {% endif %}
+
+  {{ content_for_header }}
+</head>
+
+  <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
+    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+    <div id="header-group">
+      {% sections 'header-group' %}
+    </div>
+
+    <main
+      id="MainContent"
+      class="content-for-layout"
+      role="main"
+      data-page-transition-enabled="{{ settings.page_transition_enabled }}"
+      data-product-transition="{{ settings.transition_to_main_product }}"
+      data-template="{{ template }}"
+    >
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+    {% render 'search-modal' %}
+
+    {% # theme-check-disable ParserBlockingScript %}
+    <script src="{{ 'critical.js' | asset_url }}"></script>
+    {% # theme-check-enable ParserBlockingScript %}
+
+    {% if settings.quick_add or settings.mobile_quick_add %}
+      {% render 'quick-add-modal' %}
+    {% endif %}
+  </body>
+</html>

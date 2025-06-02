@@ -1,0 +1,123 @@
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="view-transition" content="same-origin">
+<meta name="theme-color" content="">
+
+{%- liquid
+  assign og_title = page_title | default: shop.name
+  assign og_url = canonical_url | default: request.origin | default: shop.url
+  assign og_type = 'website'
+  assign og_description = page_description | default: shop.description | default: shop.name
+
+  if request.page_type == 'product'
+    assign og_type = 'product'
+  elsif request.page_type == 'article'
+    assign og_type = 'article'
+  elsif request.page_type == 'password'
+    assign og_url = request.origin
+  endif
+
+  assign share_image = page_image | default: settings.social_share_fallback
+  assign current_locale_code = request.locale.iso_code | replace: '_', '-'
+-%}
+
+<meta property="og:site_name" content="{{ shop.name }}">
+<meta property="og:url" content="{{ og_url }}">
+<meta property="og:title" content="{{ og_title | escape }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:description" content="{{ og_description | escape }}">
+<meta property="og:locale" content="{{ current_locale_code }}">
+
+{%- if share_image != blank -%}
+  <meta property="og:image" content="https:{{ share_image | image_url }}">
+  <meta property="og:image:secure_url" content="https:{{ share_image | image_url }}">
+  <meta property="og:image:width" content="{{ share_image.width }}">
+  <meta property="og:image:height" content="{{ share_image.height }}">
+  <meta name="twitter:image" content="https:{{ share_image | image_url }}">
+{%- endif -%}
+
+{%- if request.page_type == 'product' -%}
+  {%- if product.price > 0 -%}
+    <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html }}">
+    <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+  {%- endif -%}
+  <meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
+  <meta property="product:condition" content="new">
+{%- endif -%}
+
+{%- if settings.social_twitter_link != blank -%}
+  <meta name="twitter:site" content="{{ settings.social_twitter_link | split: 'twitter.com/' | last | prepend: '@' }}">
+{%- endif -%}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ og_title | escape }}">
+<meta name="twitter:description" content="{{ og_description | escape }}">
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "{{ shop.name | escape }}",
+  {%- if settings.favicon != blank -%}
+  "logo": "{{ settings.favicon | image_url: width: 300 }}",
+  {%- endif -%}
+  "url": "{{ shop.url }}"
+  {%- comment -%} Build the 'sameAs' JSON array content string {%- endcomment -%}
+  {%- assign social_links_json_items = "" -%}
+  {%- assign social_link_added_flag = false -%}
+
+  {%- if settings.social_instagram_link != blank -%}
+    {%- capture current_link -%}"{{ settings.social_instagram_link | escape }}"{%- endcapture -%}
+    {%- assign social_links_json_items = social_links_json_items | append: current_link -%}
+    {%- assign social_link_added_flag = true -%}
+  {%- endif -%}
+
+  {%- if settings.social_tiktok_link != blank -%}
+    {%- if social_link_added_flag == true -%}
+      {%- assign social_links_json_items = social_links_json_items | append: "," -%}
+    {%- endif -%}
+    {%- capture current_link -%}"{{ settings.social_tiktok_link | escape }}"{%- endcapture -%}
+    {%- assign social_links_json_items = social_links_json_items | append: current_link -%}
+    {%- assign social_link_added_flag = true -%}
+  {%- endif -%}
+
+  {%- if settings.social_twitter_link != blank -%}
+    {%- if social_link_added_flag == true -%}
+      {%- assign social_links_json_items = social_links_json_items | append: "," -%}
+    {%- endif -%}
+    {%- capture current_link -%}"{{ settings.social_twitter_link | escape }}"{%- endcapture -%}
+    {%- assign social_links_json_items = social_links_json_items | append: current_link -%}
+    {%- assign social_link_added_flag = true -%}
+  {%- endif -%}
+
+  {%- comment -%} Append the 'sameAs' array if any links were added {%- endcomment -%}
+  {%- if social_links_json_items != "" -%}
+  ,"sameAs": [{{ social_links_json_items }}]
+  {%- endif -%}
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "WebSite",
+  "name": "{{ shop.name | escape }}",
+  "url": "{{ shop.url }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ routes.search_url }}?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<title>
+  {{ page_title }}
+  {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+  {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+  {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+</title>
+
+<link rel="canonical" href="{{ canonical_url }}">
+
+<meta name="description" content="{{ page_description | default: shop.description | default: shop.name | escape }}">
